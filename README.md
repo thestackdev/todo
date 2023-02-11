@@ -1,1 +1,1 @@
-## Nextjs Todo App
+## Todo App
