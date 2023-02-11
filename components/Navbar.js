@@ -30,7 +30,7 @@ export default function Navbar({ sidebarOpened, setSidebarOpened }) {
               <span className="sr-only">Open sidebar</span>
               <Bars3BottomLeftIcon
                 onClick={() => setSidebarOpened((e) => !e)}
-                className="w-6 h-6"
+                className="w-6 h-6 md:hidden"
               />
             </button>
             <a href="https://flowbite.com" className="flex ml-2 md:mr-24">
