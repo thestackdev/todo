@@ -1,6 +1,7 @@
 import { StateContext } from '@/providers/state'
 import { Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
 import { signOut, useSession } from 'next-auth/react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useContext, useState } from 'react'
 
@@ -35,12 +36,7 @@ export default function Navbar() {
                 className="w-6 h-6 md:hidden"
               />
             </button>
-            <a href="https://flowbite.com" className="flex ml-2 md:mr-24">
-              <img
-                src="https://flowbite.com/docs/images/logo.svg"
-                className="h-8 mr-3"
-                alt="FlowBite Logo"
-              />
+            <a href="/" className="flex ml-2 md:mr-24">
               <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
                 Todo App
               </span>
@@ -57,11 +53,21 @@ export default function Navbar() {
                   data-dropdown-toggle="dropdown-user"
                 >
                   <span className="sr-only">Open user menu</span>
-                  <img
-                    className="w-8 h-8 rounded-full"
-                    src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-                    alt="user photo"
-                  />
+                  {session.user?.image ? (
+                    <img
+                      className="w-8 h-8 rounded-full"
+                      src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                      alt="user photo"
+                    />
+                  ) : (
+                    <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                      <span className="font-medium text-gray-600 dark:text-gray-300">
+                        {session.user?.name
+                          ? session.user.name[0]
+                          : session.user?.email[0]}
+                      </span>
+                    </div>
+                  )}
                 </button>
               </div>
               <div
@@ -75,33 +81,33 @@ export default function Navbar() {
                     className="text-sm text-gray-900 dark:text-white"
                     role="none"
                   >
-                    Shanmukeshwar
+                    {session.user?.name}
                   </p>
                   <p
                     className="text-sm font-medium text-gray-900 truncate dark:text-gray-300"
                     role="none"
                   >
-                    {session?.user?.email}
+                    {session.user?.email}
                   </p>
                 </div>
                 <ul className="py-1" role="none">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      href="/"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                       role="menuitem"
                     >
                       Dashboard
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      href="https://auth.fullstacklab.org/settings"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
                       role="menuitem"
                     >
                       Settings
-                    </a>
+                    </Link>
                   </li>
                   <li>
                     <a
