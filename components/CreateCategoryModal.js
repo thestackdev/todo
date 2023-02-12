@@ -1,10 +1,12 @@
 import { createCategory } from '@/helpers/api'
 import { StateContext } from '@/providers/state'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useRouter } from 'next/router'
 import { useContext } from 'react'
 
 export default function CreateCategoryModal() {
   const state = useContext(StateContext)
+  const router = useRouter()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -12,6 +14,7 @@ export default function CreateCategoryModal() {
     await createCategory(name).then((response) => {
       state.setCategories((e) => [...e, response])
       state.setCreateCategoryVisible(false)
+      router.push(`/${response._id}`)
     })
   }
 

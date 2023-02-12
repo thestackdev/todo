@@ -6,7 +6,7 @@ const categorySchema = joi.object({
 
 const todoSchema = joi.object({
   data: joi.string().required(),
-  category: joi.string().required(),
+  category: joi.string(),
 })
 
 const getTodoSchema = joi.object({

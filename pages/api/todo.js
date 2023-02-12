@@ -5,11 +5,10 @@ import schema from 'schema/index'
 
 export default async function (req, res) {
   const client = await clientPromise
-  const collection = client.db('todo').collection('todo')
+  const todoCollection = client.db('todo').collection('todo')
+  const categoryCollection = client.db('todo').collection('category')
 
   const token = await getToken({ req })
-
-  console.log('token', req)
 
   if (!token) {
     return res.status(401).send('Request not authorized')
@@ -21,7 +20,7 @@ export default async function (req, res) {
     switch (req.method) {
       case 'GET':
         const categoryId = req.query.category
-        const todos = await collection
+        const todos = await todoCollection
           .find({
             createdBy: new ObjectId(token.sub),
             category: categoryId,
@@ -33,28 +32,38 @@ export default async function (req, res) {
       case 'POST':
         const todoSchema = await schema.todoSchema.validateAsync(req.body)
 
-        const category = await client
+        let category = req.body.category
+
+        const response = await client
           .db('todo')
           .collection('category')
-          .findOne({ _id: new ObjectId(req.body.category) })
+          .findOne({ _id: new ObjectId(category) })
 
-        if (!category) throw new Error('Category not found')
+        if (!response) {
+          const response = await categoryCollection.insertOne({
+            name: 'Uncategorized',
+            createdAt: new Date(),
+            createdBy: new ObjectId(token.sub),
+          })
+          category = response.insertedId
+        }
 
         const object = {
           ...todoSchema,
           isDone: false,
+          category: category.toString(),
           createdAt: new Date(),
           createdBy: new ObjectId(token.sub),
         }
 
-        const result = await collection.insertOne(object)
+        const result = await todoCollection.insertOne(object)
 
         if (!result) throw new Error('Unable to create TODO')
         res.status(201).json({ ...object, _id: result.insertedId })
         break
 
       case 'PUT':
-        const todo = await collection.updateOne(
+        const todo = await todoCollection.updateOne(
           { _id: new ObjectId(todoId) },
           { $set: { isDone: req.body.isDone } }
         )
@@ -63,7 +72,7 @@ export default async function (req, res) {
         break
 
       case 'DELETE':
-        const deleted = await collection.deleteOne({
+        const deleted = await todoCollection.deleteOne({
           _id: new ObjectId(todoId),
         })
 

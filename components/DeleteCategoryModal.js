@@ -1,10 +1,14 @@
 import { deleteCategory } from '@/helpers/api'
 import { StateContext } from '@/providers/state'
 import { ExclamationCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useRouter } from 'next/router'
 import { useContext } from 'react'
 
 export default function DeleteCategoryModal({}) {
   const state = useContext(StateContext)
+  const router = useRouter()
+
+  const { category } = router.query
 
   async function handleDelete() {
     deleteCategory(state.deleteCategoryId).then(() => {
@@ -12,6 +16,7 @@ export default function DeleteCategoryModal({}) {
         e.filter((c) => c._id !== state.deleteCategoryId)
       )
       state.setDeleteCategoryId(null)
+      if (category === state.deleteCategoryId) router.push('/')
     })
   }
 
