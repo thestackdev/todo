@@ -7,6 +7,7 @@ export default function StateProvider({ children }) {
   const [categories, setCategories] = useState([])
   const [sidebarOpened, setSidebarOpened] = useState(false)
   const [createCategoryVisible, setCreateCategoryVisible] = useState(false)
+  const [deleteCategoryId, setDeleteCategoryId] = useState(false)
 
   return (
     <StateContext.Provider
@@ -19,6 +20,8 @@ export default function StateProvider({ children }) {
         setSidebarOpened,
         createCategoryVisible,
         setCreateCategoryVisible,
+        deleteCategoryId,
+        setDeleteCategoryId,
       }}
     >
       {children}

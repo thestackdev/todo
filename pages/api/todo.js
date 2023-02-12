@@ -1,10 +1,19 @@
 import clientPromise from 'lib/mongodb'
 import { ObjectId } from 'mongodb'
+import { getToken } from 'next-auth/jwt'
 import schema from 'schema/index'
 
 export default async function (req, res) {
   const client = await clientPromise
   const collection = client.db('todo').collection('todo')
+
+  const token = await getToken({ req })
+
+  console.log('token', req)
+
+  if (!token) {
+    return res.status(401).send('Request not authorized')
+  }
 
   const todoId = req.query?.id
 
@@ -14,7 +23,7 @@ export default async function (req, res) {
         const categoryId = req.query.category
         const todos = await collection
           .find({
-            createdBy: new ObjectId('63dbe27add437f32d1062e72'),
+            createdBy: new ObjectId(token.sub),
             category: categoryId,
           })
           .toArray()
@@ -35,12 +44,12 @@ export default async function (req, res) {
           ...todoSchema,
           isDone: false,
           createdAt: new Date(),
-          createdBy: new ObjectId('63dbe27add437f32d1062e72'),
+          createdBy: new ObjectId(token.sub),
         }
 
         const result = await collection.insertOne(object)
 
-        if (!todo) throw new Error('Unable to create TODO')
+        if (!result) throw new Error('Unable to create TODO')
         res.status(201).json({ ...object, _id: result.insertedId })
         break
 

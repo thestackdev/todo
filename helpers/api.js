@@ -28,7 +28,6 @@ export const deleteTodo = async (id) => {
 }
 
 export const editTodo = async (todo) => {
-  console.log(todo)
   await fetch(`/api/todo?id=${todo._id}`, {
     method: 'PUT',
     headers: {
@@ -39,12 +38,18 @@ export const editTodo = async (todo) => {
 }
 
 export const createCategory = async (name) => {
-  const newCategory = await fetch('/api/category', {
+  const response = await fetch('/api/category', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ name }),
   }).then((res) => res.json())
-  return newCategory
+  return response
+}
+
+export const deleteCategory = async (id) => {
+  await fetch(`/api/category?id=${id}`, {
+    method: 'DELETE',
+  })
 }

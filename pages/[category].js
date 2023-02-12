@@ -1,29 +1,30 @@
 import CreateCategoryModal from '@/components/CreateCategoryModal'
+import DeleteCategoryModal from '@/components/DeleteCategoryModal'
 import Spinner from '@/components/Spinner'
 import { createTodo, deleteTodo, editTodo, getTodos } from '@/helpers/api'
+import { StateContext } from '@/providers/state'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 
 export default function Category() {
   const router = useRouter()
   const { category } = router.query
-  const [todos, setTodos] = useState([])
-  const [createCategoryVisible, setCreateCategoryVisible] = useState(false)
+  const state = useContext(StateContext)
 
   useEffect(() => {
-    if (category) getTodos(category).then((todos) => setTodos(todos))
+    if (category) getTodos(category).then((todos) => state.setTodos(todos))
   }, [category])
 
   async function handleDelete(id) {
     await deleteTodo(id).then(() => {
-      setTodos(todos.filter((e) => e._id !== id))
+      state.setTodos((e) => e.filter((e) => e._id !== id))
     })
   }
 
   async function handleEdit(todo) {
     await editTodo(todo).then(() => {
-      setTodos(todos.map((e) => (e._id === todo._id ? todo : e)))
+      state.setTodos((e) => (e._id === todo._id ? todo : e))
     })
   }
 
@@ -34,19 +35,17 @@ export default function Category() {
       category,
     }
     createTodo(newTodo).then((todo) => {
-      setTodos([...todos, todo])
+      state.setTodos((e) => [...e, todo])
     })
     e.target[0].value = ''
   }
 
-  if (!todos) return <Spinner />
+  if (!state.todos) return <Spinner />
 
   return (
     <div>
-      <CreateCategoryModal
-        visible={createCategoryVisible}
-        onClose={() => setCreateCategoryVisible(false)}
-      />
+      <CreateCategoryModal />
+      <DeleteCategoryModal />
       <form className="max-w-lg mx-auto" onSubmit={handleSubmit}>
         <label
           htmlFor="todo"
@@ -73,7 +72,7 @@ export default function Category() {
         </div>
       </form>
       <div className="w-full flex max-w-xl mt-6 flex-col mx-auto">
-        {todos.map((e) => (
+        {state.todos.map((e) => (
           <div
             key={e._id}
             className="flex items-center gap-2 group p-2 rounded cursor-pointer hover:bg-gray-100 hover:dark:bg-gray-600"

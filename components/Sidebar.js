@@ -1,6 +1,6 @@
 import { getCategories } from '@/helpers/api'
 import { StateContext } from '@/providers/state'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useContext, useEffect } from 'react'
@@ -13,8 +13,6 @@ export default function Sidebar({ children }) {
   useEffect(() => {
     getCategories().then((categories) => state.setCategories(categories))
   }, [])
-
-  console.log('state.createCategoryVisible', state.createCategoryVisible)
 
   return (
     <div>
@@ -35,16 +33,23 @@ export default function Sidebar({ children }) {
           </button>
           <ul className="space-y-2">
             {state.categories.map((e) => (
-              <li key={e._id}>
+              <li
+                className={`flex flex-row items-center justify-between group rounded-lg ${
+                  category === e._id && 'bg-primary-100 dark:bg-primary-600'
+                }  hover:bg-gray-100 dark:hover:bg-gray-700`}
+                key={e._id}
+              >
                 <Link
                   onClick={() => state.setSidebarOpened(false)}
                   href={`/${e._id}`}
-                  className={`flex items-center p-2 text-base font-normal text-gray-900 rounded-lg ${
-                    category === e._id && 'bg-primary-100 dark:bg-primary-600'
-                  } dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700`}
+                  className={`flex items-center p-2 text-base font-normal text-gray-900 dark:text-white `}
                 >
                   <span className="ml-3">{e.name}</span>
                 </Link>
+                <XMarkIcon
+                  onClick={() => state.setDeleteCategoryId(e._id)}
+                  className="hidden group-hover:flex w-5 h-5 mr-2 dark:text-white cursor-pointer"
+                />
               </li>
             ))}
           </ul>
