@@ -1,11 +1,13 @@
+import { StateContext } from '@/providers/state'
 import { Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
 import { signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 
-export default function Navbar({ sidebarOpened, setSidebarOpened }) {
+export default function Navbar() {
   const [profileOptionsOpened, setProfileOptionsOpened] = useState(false)
   const { data: session } = useSession()
+  const state = useContext(StateContext)
   const router = useRouter()
 
   function handleSession() {
@@ -24,12 +26,12 @@ export default function Navbar({ sidebarOpened, setSidebarOpened }) {
               aria-controls="logo-sidebar"
               type="button"
               className={`inline-flex items-center p-2 text-sm text-gray-500 rounded-lg md:${
-                !sidebarOpened && 'hidden'
+                !state.sidebarOpened && 'hidden'
               } hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600`}
             >
               <span className="sr-only">Open sidebar</span>
               <Bars3BottomLeftIcon
-                onClick={() => setSidebarOpened((e) => !e)}
+                onClick={() => state.setSidebarOpened((e) => !e)}
                 className="w-6 h-6 md:hidden"
               />
             </button>

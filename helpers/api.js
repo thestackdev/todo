@@ -37,3 +37,14 @@ export const editTodo = async (todo) => {
     body: JSON.stringify(todo),
   })
 }
+
+export const createCategory = async (name) => {
+  const newCategory = await fetch('/api/category', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  }).then((res) => res.json())
+  return newCategory
+}

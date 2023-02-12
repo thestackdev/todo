@@ -37,12 +37,11 @@ export default async function (req, res) {
           createdAt: new Date(),
           createdBy: new ObjectId('63dbe27add437f32d1062e72'),
         }
+
         const result = await collection.insertOne(object)
-        res.status(201).json({
-          ...object,
-          _id: result.insertedId,
-        })
-        res.status(200).json({ collection: category })
+
+        if (!todo) throw new Error('Unable to create TODO')
+        res.status(201).json({ ...object, _id: result.insertedId })
         break
 
       case 'PUT':

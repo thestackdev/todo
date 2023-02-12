@@ -1,3 +1,4 @@
+import CreateCategoryModal from '@/components/CreateCategoryModal'
 import Spinner from '@/components/Spinner'
 import { createTodo, deleteTodo, editTodo, getTodos } from '@/helpers/api'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
@@ -8,6 +9,7 @@ export default function Category() {
   const router = useRouter()
   const { category } = router.query
   const [todos, setTodos] = useState([])
+  const [createCategoryVisible, setCreateCategoryVisible] = useState(false)
 
   useEffect(() => {
     if (category) getTodos(category).then((todos) => setTodos(todos))
@@ -41,6 +43,10 @@ export default function Category() {
 
   return (
     <div>
+      <CreateCategoryModal
+        visible={createCategoryVisible}
+        onClose={() => setCreateCategoryVisible(false)}
+      />
       <form className="max-w-lg mx-auto" onSubmit={handleSubmit}>
         <label
           htmlFor="todo"
@@ -84,7 +90,9 @@ export default function Category() {
               />
               <label
                 htmlFor={e._id}
-                className="ml-2 text-lg font-medium text-gray-900 dark:text-gray-300"
+                className={`ml-2 text-lg font-medium text-gray-900 dark:text-gray-300 ${
+                  e.isDone && 'line-through'
+                }`}
               >
                 {e.data}
               </label>
