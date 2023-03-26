@@ -1,13 +1,9 @@
-import clientPromise from 'lib/mongodb'
-import { ObjectId } from 'mongodb'
+import handleErrors from '@/helpers/errors'
+import prisma from '@/lib/prisma'
 import { getToken } from 'next-auth/jwt'
 import schema from 'schema/index'
 
 export default async function (req, res) {
-  const client = await clientPromise
-  const todoCollection = client.db('todo').collection('todo')
-  const categoryCollection = client.db('todo').collection('category')
-
   const token = await getToken({ req })
 
   if (!token) {
@@ -16,79 +12,76 @@ export default async function (req, res) {
 
   const todoId = req.query?.id
 
-  try {
-    switch (req.method) {
-      case 'GET':
-        const categoryId = req.query.category
-        const todos = await todoCollection
-          .find({
-            createdBy: new ObjectId(token.sub),
-            category: categoryId,
-          })
-          .toArray()
-        res.status(200).json(todos)
-        break
+  switch (req.method) {
+    case 'GET':
+      try {
+        const categoryId = req.query?.category
 
-      case 'POST':
-        const todoSchema = await schema.todoSchema.validateAsync(req.body)
-
-        let category = req.body.category
-
-        const response = await client
-          .db('todo')
-          .collection('category')
-          .findOne({ _id: new ObjectId(category) })
-
-        if (!response) {
-          const response = await categoryCollection.insertOne({
-            name: 'Uncategorized',
-            createdAt: new Date(),
-            createdBy: new ObjectId(token.sub),
-          })
-          category = response.insertedId
+        if (!categoryId) {
+          throw new Error('Invalid category ID')
         }
 
-        const object = {
-          ...todoSchema,
-          isDone: false,
-          category: category.toString(),
-          createdAt: new Date(),
-          createdBy: new ObjectId(token.sub),
-        }
-
-        const result = await todoCollection.insertOne(object)
-
-        if (!result) throw new Error('Unable to create TODO')
-        res.status(201).json({ ...object, _id: result.insertedId })
-        break
-
-      case 'PUT':
-        const todo = await todoCollection.updateOne(
-          { _id: new ObjectId(todoId) },
-          { $set: { isDone: req.body.isDone } }
-        )
-        if (!todo) throw new Error('Todo not found')
-        res.status(200).send('ok')
-        break
-
-      case 'DELETE':
-        const deleted = await todoCollection.deleteOne({
-          _id: new ObjectId(todoId),
+        const todos = await prisma.todo.findMany({
+          where: { categoryId: categoryId, userId: token.sub },
         })
 
-        if (!deleted) throw new Error('Todo not found')
+        res.status(200).json({ success: true, data: todos })
+      } catch (err) {
+        handleErrors(err, res)
+      }
+      break
 
-        res.status(200).send('ok')
-        break
+    case 'POST':
+      try {
+        const value = await schema.todoSchema.validateAsync(req.body)
 
-      default:
-        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE'])
-        res.status(405).end(`Method ${req.method} Not Allowed`)
-    }
-  } catch (error) {
-    console.log(error)
-    if (error?.details) {
-      res.status(400).send(Array.from(error.details.map((e) => e.message)))
-    } else res.status(500).send('Something went wrong')
+        let categoryId = req.body?.categoryId
+
+        if (!categoryId) {
+          const category = await prisma.category.create({
+            data: { title: 'Uncategorized', userId: token.sub },
+          })
+          categoryId = category.id
+        }
+
+        const data = await prisma.todo.create({
+          data: {
+            title: value.title,
+            userId: token.sub,
+            categoryId: categoryId,
+          },
+        })
+
+        res.status(201).json({ success: true, data: data })
+      } catch (error) {
+        handleErrors(error, res)
+      }
+      break
+
+    case 'PUT':
+      try {
+        await prisma.todo.update({
+          where: { id: todoId },
+          data: { completed: req.body?.completed },
+        })
+        res.status(200).send({ success: true })
+      } catch (error) {
+        handleErrors(error, res)
+      }
+
+      break
+
+    case 'DELETE':
+      try {
+        await prisma.todo.delete({ where: { id: todoId } })
+        res.status(200).send({ success: true })
+      } catch (error) {
+        handleErrors(error, res)
+      }
+      break
+
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE'])
+      res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 }

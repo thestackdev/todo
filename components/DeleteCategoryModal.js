@@ -13,7 +13,7 @@ export default function DeleteCategoryModal({}) {
   async function handleDelete() {
     deleteCategory(state.deleteCategoryId).then(() => {
       state.setCategories((e) =>
-        e.filter((c) => c._id !== state.deleteCategoryId)
+        e.filter((c) => c.id !== state.deleteCategoryId)
       )
       state.setDeleteCategoryId(null)
       if (category === state.deleteCategoryId) router.push('/')

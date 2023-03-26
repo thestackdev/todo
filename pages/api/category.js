@@ -1,52 +1,54 @@
-import clientPromise from 'lib/mongodb'
-import { ObjectId } from 'mongodb'
-import { getToken } from 'next-auth/jwt'
+import { isAuthenticated } from '@/helpers/auth'
+import handleErrors from '@/helpers/errors'
+import prisma from '@/lib/prisma'
 import schema from 'schema/index'
 
 export default async function (req, res) {
-  const client = await clientPromise
-  const categoryCollection = client.db('todo').collection('category')
-  const todoCollection = client.db('todo').collection('todo')
+  const user = await isAuthenticated(req)
 
-  const token = await getToken({ req })
-
-  if (!token) {
-    return res.status(401).send('Request not authorized')
-  }
+  if (!user) return res.redirect('/login')
 
   switch (req.method) {
     case 'GET':
-      const categories = await categoryCollection
-        .find({ createdBy: new ObjectId(token.sub) })
-        .toArray()
-      res.status(200).json(categories)
+      try {
+        const records = await prisma.category.findMany({
+          where: { userId: user.sub },
+        })
+        return res.status(200).json({ success: true, data: records })
+      } catch (err) {
+        handleErrors(err, res)
+      }
       break
 
     case 'POST':
-      const value = await schema.categorySchema.validateAsync(req.body)
-      const object = {
-        ...value,
-        createdAt: new Date(),
-        createdBy: new ObjectId(token.sub),
+      try {
+        const value = await schema.categorySchema.validateAsync(req.body)
+        const record = await prisma.category.create({
+          data: {
+            title: value.title,
+            userId: user.sub,
+          },
+        })
+        res.status(201).json({ success: true, data: record })
+      } catch (err) {
+        handleErrors(err, res)
       }
-      const result = await categoryCollection.insertOne(object)
-      res.status(201).json({
-        ...object,
-        _id: result.insertedId,
-      })
       break
 
     case 'DELETE':
       const id = req.query?.id
 
-      await todoCollection.deleteMany({ category: id })
+      try {
+        if (!id) {
+          throw new Error('Invalid ID')
+        }
 
-      const deleted = await categoryCollection.deleteOne({
-        _id: new ObjectId(id),
-      })
+        await prisma.category.delete({ where: { id } })
 
-      if (!deleted) throw new Error('Category not found')
-      res.status(200).send('ok')
+        res.status(200).send({ success: true })
+      } catch (err) {
+        handleErrors(err, res)
+      }
       break
 
     default:

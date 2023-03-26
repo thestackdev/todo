@@ -10,11 +10,11 @@ export default function CreateCategoryModal() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const name = e.target[0].value
-    await createCategory(name).then((response) => {
+    const title = e.target[0].value
+    await createCategory(title).then((response) => {
       state.setCategories((e) => [...e, response])
       state.setCreateCategoryVisible(false)
-      router.push(`/${response._id}`)
+      router.push(`/${response.id}`)
     })
   }
 

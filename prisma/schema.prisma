@@ -1,0 +1,28 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model category {
+    id        String   @id @default(cuid())
+    title     String
+    userId    String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Todo      Todo[]
+}
+
+model Todo {
+    id         String   @id @default(cuid())
+    title      String
+    userId     String
+    categoryId String
+    completed  Boolean  @default(false)
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    category   category @relation(fields: [categoryId], references: [id])
+}

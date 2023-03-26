@@ -6,9 +6,10 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 export default function Home() {
   function handleSubmit(e) {
     e.preventDefault()
-    const newTodo = { data: e.target[0].value }
+    const newTodo = { title: e.target[0].value }
     createTodo(newTodo).then((todo) => {
-      window.location.href = `/${todo.category}`
+      console.log(todo)
+      window.location.href = `/${todo.categoryId}`
     })
   }
 

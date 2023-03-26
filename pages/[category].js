@@ -18,21 +18,21 @@ export default function Category() {
 
   async function handleDelete(id) {
     await deleteTodo(id).then(() => {
-      state.setTodos((e) => e.filter((e) => e._id !== id))
+      state.setTodos((e) => e.filter((e) => e.id !== id))
     })
   }
 
   async function handleEdit(todo) {
     await editTodo(todo).then(() => {
-      state.setTodos((e) => (e._id === todo._id ? todo : e))
+      state.setTodos((e) => (e.id === todo.id ? todo : e))
     })
   }
 
   function handleSubmit(e) {
     e.preventDefault()
     const newTodo = {
-      data: e.target[0].value,
-      category,
+      title: e.target[0].value,
+      categoryId: category,
     }
     createTodo(newTodo).then((todo) => {
       state.setTodos((e) => [...e, todo])
@@ -74,30 +74,30 @@ export default function Category() {
       <div className="w-full flex max-w-xl mt-6 flex-col mx-auto">
         {state.todos.map((e) => (
           <div
-            key={e._id}
+            key={e.id}
             className="flex items-center gap-2 group p-2 rounded cursor-pointer hover:bg-gray-100 hover:dark:bg-gray-600"
           >
             <div>
               <input
-                id={e._id}
+                id={e.id}
                 type="checkbox"
-                defaultChecked={e.isDone}
+                defaultChecked={e.completed}
                 onChange={() => {
-                  handleEdit({ ...e, isDone: !e.isDone })
+                  handleEdit({ ...e, completed: !e.completed })
                 }}
                 className="w-4 h-4 cursor-pointer text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
               <label
-                htmlFor={e._id}
+                htmlFor={e.id}
                 className={`ml-2 text-lg font-medium text-gray-900 dark:text-gray-300 ${
-                  e.isDone && 'line-through'
+                  e.completed && 'line-through'
                 }`}
               >
-                {e.data}
+                {e.title}
               </label>
             </div>
             <XMarkIcon
-              onClick={() => handleDelete(e._id)}
+              onClick={() => handleDelete(e.id)}
               className="hidden group-hover:block w-5 h-5 ml-auto cursor-pointer text-gray-500 dark:text-gray-400"
             />
           </div>

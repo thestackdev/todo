@@ -1,13 +1,13 @@
 export const getCategories = async () => {
   const category = await fetch('/api/category').then((res) => res.json())
-  return category
+  return category?.data
 }
 
 export const getTodos = async (category) => {
   const todos = await fetch(`/api/todo?category=${category}`).then((res) =>
     res.json()
   )
-  return todos
+  return todos?.data
 }
 
 export const createTodo = async (todo) => {
@@ -18,7 +18,7 @@ export const createTodo = async (todo) => {
     },
     body: JSON.stringify(todo),
   }).then((res) => res.json())
-  return newTodo
+  return newTodo?.data
 }
 
 export const deleteTodo = async (id) => {
@@ -28,7 +28,7 @@ export const deleteTodo = async (id) => {
 }
 
 export const editTodo = async (todo) => {
-  await fetch(`/api/todo?id=${todo._id}`, {
+  await fetch(`/api/todo?id=${todo.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -37,15 +37,15 @@ export const editTodo = async (todo) => {
   })
 }
 
-export const createCategory = async (name) => {
+export const createCategory = async (title) => {
   const response = await fetch('/api/category', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({ title }),
   }).then((res) => res.json())
-  return response
+  return response?.data
 }
 
 export const deleteCategory = async (id) => {

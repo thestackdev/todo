@@ -1,12 +1,12 @@
 import joi from 'joi'
 
 const categorySchema = joi.object({
-  name: joi.string().required(),
+  title: joi.string().required(),
 })
 
 const todoSchema = joi.object({
-  data: joi.string().required(),
-  category: joi.string(),
+  title: joi.string().required(),
+  categoryId: joi.string(),
 })
 
 const getTodoSchema = joi.object({

@@ -35,19 +35,19 @@ export default function Sidebar({ children }) {
             {state.categories.map((e) => (
               <li
                 className={`flex flex-row items-center justify-between group rounded-lg ${
-                  category === e._id && 'bg-primary-100 dark:bg-primary-600'
+                  category === e.id && 'bg-primary-100 dark:bg-primary-600'
                 }  hover:bg-gray-100 dark:hover:bg-gray-700`}
-                key={e._id}
+                key={e.id}
               >
                 <Link
                   onClick={() => state.setSidebarOpened(false)}
-                  href={`/${e._id}`}
+                  href={`/${e.id}`}
                   className={`flex items-center p-2 text-base font-normal text-gray-900 dark:text-white `}
                 >
-                  <span className="ml-3">{e.name}</span>
+                  <span className="ml-3">{e.title}</span>
                 </Link>
                 <XMarkIcon
-                  onClick={() => state.setDeleteCategoryId(e._id)}
+                  onClick={() => state.setDeleteCategoryId(e.id)}
                   className="hidden group-hover:flex w-5 h-5 mr-2 dark:text-white cursor-pointer"
                 />
               </li>
