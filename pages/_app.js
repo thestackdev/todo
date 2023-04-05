@@ -3,8 +3,8 @@ import Sidebar from '@/components/Sidebar'
 import AuthProvider from '@/providers/auth'
 import StateProvider from '@/providers/state'
 import '@/styles/globals.css'
-import { Inter } from '@next/font/google'
 import { SessionProvider } from 'next-auth/react'
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
