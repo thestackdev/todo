@@ -1,6 +1,8 @@
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  experimental: {
+    runtime: 'edge',
+  },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     BASE_URL: process.env.BASE_URL,
